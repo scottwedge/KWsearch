@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package entry;
+
+service Droi {
+    rpc loader(Request) returns (Response) {}
+    rpc hook(Request) returns (Response) {}
+    rpc job(Request) returns (Response) {}
+    rpc update(Request) returns (Response) {}
+}
+
+message Request {
+      map<string, string> headers = 2;
+}
+
+message Response {
+      map<string, string> headers = 2;
+}
+
