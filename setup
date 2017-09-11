@@ -31,7 +31,8 @@ rm pip* -rf
 rm setuptools* -rf
 rm no-global-site-packages.txt
 rm wheel* -rf
-rm six* -rf
+#rm six* -rf
+rm grpc_tools/ -rf
 #rm packaging* -rf
 
 rm setup
