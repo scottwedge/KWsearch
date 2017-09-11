@@ -12,7 +12,7 @@ TOPIC_LIMIT = 16 #bytes
 TEXT_LIMIT = 128 * 3 #words
 
 #Mongo Direct
-DB_HOST = ['alpha01:7379', 'alpha01:7380']
+DB_HOST = ['10.128.112.181:7379', '10.128.112.181:7380']
 DB_USER = 'search'
 DB_PSWD = '4Jf8VL39tS7bImO8'
 DB_NAME = 'dbops'

@@ -121,7 +121,7 @@ if __name__ == '__main__':
 
     parser.add_argument("--host", type=str,
         help="Connection Host Address. (=%(default)s)",
-        dest="host", default='localhost') #required=False
+        dest="host", default='10.128.81.41') #required=False
 
 
     """
