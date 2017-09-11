@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding: utf8 -*-
-#Brief  Start the Droi.Py micro service.
-#Created 2017-02-10 @Evan
+#Brief  Clinet testing for the mongodb backgroud service.
+#Created 2017-05-25 @Evan
 
 #import os
 import time
@@ -9,15 +9,21 @@ import json
 import argparse
 
 import grpc
-import droipy_pb2
-import droipy_pb2_grpc
+import miner_pb2
+import miner_pb2_grpc
 
 import config
-#__name = os.path.basename(__file__)
-#__path = os.path.dirname(__file__)
-#if __path: os.chdir(__path)
 
-__TIME_OUT = 5#config.TIME_OUT
+__TIME_OUT = 5
+
+CR = '\x1b[31m'
+CW = '\x1b[37m'
+CY = '\x1b[33m'
+CG = '\x1b[32m'
+CB = '\x1b[34m'
+
+_appid = 'bf8umbzhigY-zYLSzOhEifAD91gTRXU2lQAAGsIK'
+_topic = 'topic_test'
 
 def main():
     """
@@ -25,46 +31,85 @@ def main():
     """
 
     ch = grpc.insecure_channel('localhost:%d' % options.port)
-    stub = droipy_pb2_grpc.DroiStub(ch)
+    stub = miner_pb2_grpc.MinerStub(ch)
 
-    resp = stub.update(
-        droipy_pb2.Request(
-            headers={
-                'X-Droi-Service-AppID': 'bf8umbzhigY-zYLSzOhEifAD91gTRXU2lQAAGsIK',
-                'X-Droi-Method': 'update',
-                'path': 'py/testm.py'
+    print CB + '== POST ==' + CW
+    resp = stub.post(
+        miner_pb2.Request(
+            body={
+                'appid': _appid,
+                'topic': _topic,
+                'text': '測試內文',
             }),
         timeout=__TIME_OUT
     )
 
-    for k, v in resp.headers.items():
+    _id = ''
+    for k, v in resp.body.items():
+        print k, ':', v
+        if k == 'data': _id = v
+
+    print CB + '== UPDATE ==' + CW
+    resp = stub.update(
+        miner_pb2.Request(
+            body={
+                'appid': _appid,
+                'topic': _topic,
+                'id': _id,
+                'text': '測試天將降大任',
+                'w': '5',
+            }),
+        timeout=__TIME_OUT
+    )
+
+    for k, v in resp.body.items():
         print k, ':', v
 
+    print CB + '== INFO ==' + CW
+    resp = stub.info(
+        miner_pb2.Request(
+            body={
+                'appid': _appid,
+                'topic': _topic,
+                'id': _id,
+            }),
+        timeout=__TIME_OUT
+    )
+
+    for k, v in resp.body.items():
+        print k, ':', v
+    #"""
+
+    print CB + '== SEARCH ==' + CW
+    resp = stub.search(
+        miner_pb2.Request(
+            body={
+                'appid': _appid,
+                'topic': _topic,
+                'key': '測試@',
+            }),
+        timeout=__TIME_OUT
+    )
+
+    for k, v in resp.body.items():
+        print k, ':', v
+    #"""
+
+    print CB + '== REMOVE ==' + CW
+    resp = stub.remove(
+        miner_pb2.Request(
+            body={
+                'appid': _appid,
+                'topic': _topic,
+                'id': _id,
+            }),
+        timeout=__TIME_OUT
+    )
+
+    for k, v in resp.body.items():
+        print k, ':', v
+    #"""
     print
-    for i in xrange(options.times):
-        try:
-            resp = stub.loader(
-                droipy_pb2.Request(
-                    headers={
-                        'X-Droi-Service-AppID': 'bf8umbzhigY-zYLSzOhEifAD91gTRXU2lQAAGsIK',
-                        'X-Droi-Method': 'test',
-                        'X-Droi-Remote-IP': 'localhost',
-                        'path': 'py/testm.py',
-                        'body': json.dumps({
-                            'tag': 'loader', 'num': i
-                        })
-                    }),
-                timeout=__TIME_OUT
-            )
-
-            for k, v in resp.headers.items():
-                print k, ':', v
-
-        except Exception, e:
-            print e
-            break
-        time.sleep(1)
-
     return 0
 
 if __name__ == '__main__':
@@ -72,11 +117,12 @@ if __name__ == '__main__':
 
     parser.add_argument("-p", "--port", type=int,
         help="Port Number. (=%(default)s)",
-        dest="port", default=50051) #required=False
+        dest="port", default=7973) #required=False
 
-    parser.add_argument("-t", "--times", type=int,
-        help="Execute Times. (=%(default)s)",
-        dest="times", default=10) #required=False
+    parser.add_argument("--host", type=str,
+        help="Connection Host Address. (=%(default)s)",
+        dest="host", default='localhost') #required=False
+
 
     """
     parser.add_argument("-f", "--force", action="store_true",
