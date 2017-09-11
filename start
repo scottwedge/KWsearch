@@ -1,4 +1,4 @@
 #!/bin/bash
 
 source venv/bin/activate
-python droi.py
+./python miner.py

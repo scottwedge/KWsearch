@@ -3,6 +3,35 @@
 #python -m pip install virtualenv
 #pip install grpcio-tools
 #python -m grpc_tools.protoc -I . --python_out=. --grpc_python_out=. droipy.proto
-source venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install grpcio
+
+#source venv/bin/activate
+#python -m pip install --upgrade pip
+#python -m pip install grpcio
+
+rm start test
+
+echo "./python miner.py" > start
+chmod 755 start
+
+echo "./python testClient.py" > test
+chmod 755 test
+
+rm .*.swp .*.swo
+rm .git* -rf
+cp venv/lib/python2.7/* . -r
+cp venv/local/lib/python2.7/* . -r
+mv site-packages/* . 
+rm site-packages -rf
+touch google/__init__.py
+touch google/protobuf/__init.py
+cp venv/bin/python .
+
+rm venv -rf
+rm pip* -rf
+rm setuptools* -rf
+rm no-global-site-packages.txt
+rm wheel* -rf
+rm six* -rf
+#rm packaging* -rf
+
+rm setup

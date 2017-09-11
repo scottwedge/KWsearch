@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package entry;
+
+service Miner {
+    rpc post(Request) returns (Response) {}
+    rpc remove(Request) returns (Response) {}
+    rpc info(Request) returns (Response) {}
+    rpc search(Request) returns (Response) {}
+    rpc update(Request) returns (Response) {}
+    rpc command(Request) returns (Response) {}
+}
+
+message Request {
+      map<string, string> body = 1;
+}
+
+message Response {
+      map<string, string> body = 1;
+}
+

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+source venv/bin/activate
+#python testClient.py -p 50051 &
+./python testClient.py  
+
