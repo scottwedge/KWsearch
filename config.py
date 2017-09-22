@@ -1,6 +1,6 @@
 # -*- encoding: utf8 -*-
 #Service
-PORT_NUM = [7973] #xrange(50051, 50053)
+PORT_NUM = 7973 #xrange(50051, 50053)
 THREAD_POOL_NUM = 200
 
 #Runtime Processing (s)
@@ -12,7 +12,10 @@ TOPIC_LIMIT = 16 #bytes
 TEXT_LIMIT = 128 * 3 #words
 
 #Mongo Direct
-DB_HOST = ['10.128.112.181:7379', '10.128.112.181:7380']
+DB_HOST = {
+    'alpha': ['10.128.112.181:7379', '10.128.112.181:7380'],
+    'prod': ['10.10.40.48:7379', '10.10.40.49:7379', '10.10.40.42:7379', '10.10.40.50:7379']
+}
 DB_USER = 'search'
 DB_PSWD = '4Jf8VL39tS7bImO8'
 DB_NAME = 'dbops'

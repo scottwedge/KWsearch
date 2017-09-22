@@ -54,21 +54,21 @@ class Options():
         self.skip = 0
 
 class Mongo():
-    def __init__(self):
-        self.count = 0
-        self.pool = []
-        self._dbops = []
-        for h in config.DB_HOST:
-            self.pool.append(MongoClient(config.DB_HOST))
+    def __init__(self, mode):
+        self.conn = MongoClient(config.DB_HOST[mode],
+            #serverSelectionTimeoutMS=1000,
+            connectTimeoutMS=500,
+            #socketTimeoutMS=500,
+            #maxIdleTimeMS=1000,
+            minPoolSize=10,
+        )
 
-        for conn in self.pool:
-            conn.get_database('admin').authenticate(
-                config.DB_USER, config.DB_PSWD)
-            self._dbops.append(conn.get_database(config.DB_NAME))
+        self.conn.get_database('admin').authenticate(
+            config.DB_USER, config.DB_PSWD)
+        self.dbops = self.conn.get_database(config.DB_NAME)
 
     def set(self, name):
-        self.db = self.pool[self.count % len(self.pool)].get_database(name)
-        self.count += 1
+        self.db = self.conn.get_database(name)
 
     def col(self, name):
         return self.db.get_collection(name)
@@ -105,16 +105,13 @@ class Mongo():
 
         return _col
 
-    def dbops(self):
-        return self._dbops[self.count % len(self._dbops)]
-
     def searchMeta(self, appid, dbn=None):
         if dbn:
-            self.dbops().get_collection('searchMeta').insert_one(
+            self.dbops.get_collection('searchMeta').insert_one(
                 {'AppId': appid, 'DBN': dbn}
             )
 
-        _data = self.dbops().get_collection('searchMeta').find_one(
+        _data = self.dbops.get_collection('searchMeta').find_one(
             {'AppId': appid}, {'DBN': 1, '_id': 0}
         )
         if _data: return _data
@@ -122,20 +119,19 @@ class Mongo():
 
     def appMeta(self, appid=None):
         if appid:
-            _data = self.dbops().get_collection('_AppMeta').find_one(
+            _data = self.dbops.get_collection('_AppMeta').find_one(
                 {'AppId': appid}, {'DBN': 1, '_id': 0}
             )
             if _data: return _data
             return {}
 
-        for l in self.dbops().get_collection('_AppMeta').find(
+        for l in self.dbops.get_collection('_AppMeta').find(
             {}, {'DBN': 1, '_id': 0, 'AppId': 1}
         ):
             return l
 
         return {}
 
-_mongo = Mongo()
 
 class Miner(miner_pb2_grpc.MinerServicer):
 
@@ -161,12 +157,12 @@ def main():
     """
     Start a GRPC micro service.
     """
+    _port = options.port if options.port else config.PORT_NUM
 
     server = grpc.server(futures.ThreadPoolExecutor(
         max_workers=config.THREAD_POOL_NUM))
     miner_pb2_grpc.add_MinerServicer_to_server(Miner(), server)
-    for _pn in config.PORT_NUM:
-        server.add_insecure_port('[::]:%d' % _pn)
+    server.add_insecure_port('[::]:%d' % _port)
 
     server.start()
 
@@ -181,9 +177,13 @@ def main():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=main.__doc__)
 
-    parser.add_argument("-m", "--msg", type=str,
-        help="Messages. (=%(default)s)",
-        dest="msg", default="Hello World!") #required=False
+    parser.add_argument("-p", "--port", type=int,
+        help="Port Number. (=%(default)s)",
+        dest="port") #required=False
+
+    parser.add_argument("-m", "--mode", type=str,
+        help="Execution Mode. (=%(default)s)",
+        dest="mode", default='alpha') #required=False
 
     """
     parser.add_argument("-f", "--force", action="store_true",
@@ -195,6 +195,8 @@ if __name__ == '__main__':
         nargs='*') #?,+,Num
     #"""
     options = parser.parse_args()
+
+    _mongo = Mongo(options.mode)
 
     parser.exit(main(), 'Done.')
 

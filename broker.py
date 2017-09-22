@@ -31,10 +31,15 @@ def resp(st, code=0, msg=None, **args):
     _data = {'code': '0'}
 
     if code > 0: _data['code'] = str(code)
-    if msg: _data['msg'] = str(msg)
+    elif msg: _data['msg'] = str(msg)
+
 
     for k, v in args.items():
-        _data[k] = str(v)
+        _type = type(v)
+        if _type is list or _type is dict:
+            _temp = json.dumps(v)
+        else: _temp = str(v)
+        _data[k] = _temp
 
     _data['pt'] = str((time.time() - st) * 1000)
     return miner_pb2.Response(
@@ -190,8 +195,6 @@ def post(body, opts):
 def remove(body, opts, ctrl=False):
     if opts.error: return opts.error
 
-    _id = body.get('id', genId([opts.appid, opts.topic, opts.text]))
-
     _dbn = getDBN(opts)
 
     opts.db.set(_dbn)
@@ -201,10 +204,10 @@ def remove(body, opts, ctrl=False):
     _kw = opts.db.kw(opts.appid, opts.topic, index=False)
     try:
         _col.delete_one({
-            'Id': _id,
+            'Id': opts.Id,
         })
         _kw.delete_many({
-            'Id': _id,
+            'Id': opts.Id,
         })
 
     except Exception, e:
@@ -221,8 +224,6 @@ def remove(body, opts, ctrl=False):
 def info(body, opts):
     if opts.error: return opts.error
 
-    _id = body.get('id', genId([opts.appid, opts.topic, opts.text]))
-
     _dbn = getDBN(opts)
 
     opts.db.set(_dbn)
@@ -232,10 +233,10 @@ def info(body, opts):
     _kw = opts.db.kw(opts.appid, opts.topic)
     try:
         _data = _col.find_one({
-            'Id': _id,
+            'Id': opts.Id,
             }, {'_id': 0})
 
-        _data['key'] = _kw.count({'Id': _id})
+        _data['key'] = _kw.count({'Id': opts.Id})
 
     except Exception, e:
         return resp(opts.st, code=error.QUERY_FAILED,
@@ -283,16 +284,31 @@ def search(body, opts):
 
     return resp(opts.st, data=_data)
 
-@checkAppid
-@checkText
-@checkTopic
 def update(body, opts):
-
     _temp = remove(body, opts, ctrl=True)
-
     if _temp: return _temp
-
     return post(body, opts)
+
+@checkAppid
+@checkTopic
+@checkId
+@checkWeight
+def realUpdate(body, opts):
+    if opts.error: return opts.error
+
+    try:
+        _col = opts.db.raw(opts.appid, opts.topic)
+        _col.update_one({
+            'Id': opts.Id,
+        }, {
+            '$set': {'w': opts.w, 'UPT': opts.st}
+        })
+    except Exception, e:
+        return resp(opts.st, code=error.UPDATE_FAILED,
+            msg=str(e)
+        )
+
+    return resp(opts.st)
 
 def command(body, opts):
     #if opts.error: return opts.error
