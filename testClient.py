@@ -25,10 +25,7 @@ CB = '\x1b[34m'
 _appid = 'bf8umbzhigY-zYLSzOhEifAD91gTRXU2lQAAGsIK'
 _topic = 'topic_test'
 
-def main():
-    """
-    A description of this module and processing.
-    """
+def do():
 
     ch = grpc.insecure_channel('localhost:%d' % options.port)
     stub = miner_pb2_grpc.MinerStub(ch)
@@ -39,7 +36,7 @@ def main():
             body={
                 'appid': _appid,
                 'topic': _topic,
-                'text': '測試內文',
+                'text': '測試內文天將降大任',
             }),
         timeout=__TIME_OUT
     )
@@ -56,7 +53,7 @@ def main():
                 'appid': _appid,
                 'topic': _topic,
                 'id': _id,
-                'text': '測試天將降大任',
+                'text': '天將降大任於斯人也必先苦其心志勞其筋骨,惡其體膚,空乏其身',
                 'w': '5',
             }),
         timeout=__TIME_OUT
@@ -86,15 +83,18 @@ def main():
             body={
                 'appid': _appid,
                 'topic': _topic,
-                'key': '測試@',
+                'key': '空乏其身',
             }),
         timeout=__TIME_OUT
     )
 
     for k, v in resp.body.items():
         print k, ':', v
+        if _id == '' and k == 'data':
+            _temp = json.loads(v)
+            if len(_temp) > 0:
+                _id = _temp[0]['_id']
     #"""
-
     print CB + '== REMOVE ==' + CW
     resp = stub.remove(
         miner_pb2.Request(
@@ -112,6 +112,10 @@ def main():
     print
     return 0
 
+def main():
+    for i in xrange(options.times):
+        do()
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=main.__doc__)
 
@@ -119,9 +123,9 @@ if __name__ == '__main__':
         help="Port Number. (=%(default)s)",
         dest="port", default=7973) #required=False
 
-    parser.add_argument("--host", type=str,
-        help="Connection Host Address. (=%(default)s)",
-        dest="host", default='10.128.81.41') #required=False
+    parser.add_argument("-t", "--times", type=int,
+        help="Retry times. (=%(default)s)",
+        dest="times", default=1) #required=False
 
 
     """

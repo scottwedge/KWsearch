@@ -24,7 +24,6 @@ mv site-packages/* .
 rm site-packages -rf
 touch google/__init__.py
 touch google/protobuf/__init.py
-cp venv/bin/python .
 
 rm venv -rf
 rm pip* -rf
