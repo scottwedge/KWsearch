@@ -1,0 +1,102 @@
+---
+## common_start
+service_name: tpe-kwsearch #necessary
+namespace: tyd
+kind: Deployment #necessary(either[Deployment, DaemonSet])
+labels: #necessary(least one, customer key & value)
+  name: tpe-kwsearch
+  owner: Evan.Chen
+  app: tpe-kwsearch
+## common_end
+
+## generate_script_start
+#pre_task
+#pre_task: #optional
+#  script: ""
+
+#post_task
+#post_task: #optional
+#  script: "../services/{{service_name}}_post_task.yml" 
+## generate_script_end
+
+## deployment_variable_start
+replicas_num: #necessary
+  alpha: 1
+  beta: 1
+  prod: 1
+
+containers: #necessary
+  kwsearch: #least one(key=name)
+    image_module: backend #necessary(this container image's module)
+    imagePullPolicy: Always #necessary(either[Always, IfNotPresent])
+    container_ports: #necessary(least one)
+      kwsearch: 7973
+#    volumeMounts: #optional
+#      host-rcv: /rcv #least one(key=name & value=mountpath)
+#    custom_env: #optional (least one each phase if defined)
+#      alpha:
+#       key: "value" 
+#      beta:
+#       key: "value"
+#      prod:
+#       key: "value"
+#    livenessProbe: #optional(all necessary if defined)
+#      httpGet:
+#        path: health
+#       port: 60305
+#        scheme: HTTP
+#      failureThreshold: 3
+#      initialDelaySeconds: 10
+#      periodSeconds: 5
+#    successThreshold: 1
+#      timeoutSeconds: 1
+#   readinessProbe: #optional(all necessary if defined)
+#     httpGet:
+#       path: path
+#       port: 80
+#       scheme: HTTP
+#     failureThreshold: 3
+#     initialDelaySeconds: 10
+#     periodSeconds: 5
+#     successThreshold: 1
+#     timeoutSeconds: 1
+
+#volumes: #optional
+#  host-rcv: #necessary(key=name & value=either[emptyDir, path, nfs])
+#    emptyDir: "{}"         #either 
+#    path: "/droi"          #either 
+#    nfs:                   #either 
+#      server: "10.0.0.1"
+#      path: "/droi"
+## deployment_variable_end
+
+## svc_variable_start
+svc: #necessary(either[ClusterIP, NodePort])
+#  ClusterIP: #either 
+#    ip: "none" #optional
+#    node_ports: #least one(key=name & value=port&targetPort)
+#      file-upload-port:
+#        port: 80
+#        targetPort: 80
+#      backend-file-upload-port:
+#        port: 8000
+#        targetPort: 8000
+  ClusterIP: #either
+    node_ports: #least one(key=name & value=port&targetPort)
+      kwsearch:
+        port: 7973
+        targetPort: 7973
+## svc_variable_end
+
+## svc_dev_variable_start
+hl_service: false
+## svc_dev_variable_end
+
+##run_command_start
+start_command: #necessary
+  #pre_cmd: #optional (least one if defined)
+  cmd: "python /KWsearch/miner.py"
+  args: "--mode $phase"
+##run_command_end
+
+## other ( customer define )
