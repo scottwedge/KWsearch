@@ -96,7 +96,7 @@ hl_service: false
 start_command: #necessary
   #pre_cmd: #optional (least one if defined)
   cmd: "python /KWsearch/miner.py"
-  args: "--mode $phase"
+  args: "--mode ${PHASE}"
 ##run_command_end
 
 ## other ( customer define )
