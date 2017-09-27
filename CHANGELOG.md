@@ -1,3 +1,5 @@
+v1.4.0 Reversed the sorting order when skip number over then helf total numbers.
+
 v1.3.1 Add k8s config document.
 
 v1.3.0 Add an options of alpha or prod to set config node.

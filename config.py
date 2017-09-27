@@ -10,6 +10,8 @@ TIME_OUT = 15
 #APP Limit
 TOPIC_LIMIT = 16 #bytes
 TEXT_LIMIT = 128 * 3 #words
+SKIP_LIMIT = 100000
+SKIP_GATE = 10000
 
 #Mongo Direct
 DB_HOST = {
