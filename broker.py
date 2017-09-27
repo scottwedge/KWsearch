@@ -268,10 +268,14 @@ def search(body, opts):
         )
 
     try:
+        _sort = -1
+        if opts.skip > config.SKIP_GATE and opts.skip*2 > _kw.count():
+            opts.skip = _kw.count() - opts.skip - opts.limit if (
+                opts.skip < config.SKIP_LIMIT) else config.SKIP_LIMIT
         for l in _kw.aggregate([
             {'$match': {'$or': _or}},
             {'$group' : {'_id': "$Id", 'rank': {'$sum': '$w'} } },
-            {'$sort': {'rank': -1}},
+            {'$sort': {'rank': _sort}},
             {'$skip': opts.skip},
             {'$limit': opts.limit}
         ]):
