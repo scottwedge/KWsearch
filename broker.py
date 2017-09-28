@@ -268,10 +268,15 @@ def search(body, opts):
         )
 
     try:
+        #Order reversed when skip over limit
         _sort = -1
-        if opts.skip > config.SKIP_GATE and opts.skip*2 > _kw.count():
-            opts.skip = _kw.count() - opts.skip - opts.limit if (
-                opts.skip < config.SKIP_LIMIT) else config.SKIP_LIMIT
+        if opts.skip > config.SKIP_GATE:
+            if opts.skip*2 > _kw.count():
+                opts.skip = _kw.count() - opts.skip - opts.limit
+            if opts.skip > config.SKIP_LIMIT:
+                opts.skip = config.SKIP_LIMIT
+
+        #Search Aggregation
         for l in _kw.aggregate([
             {'$match': {'$or': _or}},
             {'$group' : {'_id': "$Id", 'rank': {'$sum': '$w'} } },
