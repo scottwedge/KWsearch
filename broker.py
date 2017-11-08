@@ -72,7 +72,7 @@ def checkText(func):
         if not opts.text or len(opts.text) > config.TEXT_LIMIT:
             opts.error = resp(opts.st, code=error.TEXT_LENGTH,
                 msg= 'Title is less than 1 or '
-                    'over than %d words' % config.TEXT_LIMIT
+                    'over than %d chars' % config.TEXT_LIMIT
             )
         return func(body, opts, **args)
     return check
@@ -85,11 +85,11 @@ def checkTopic(func):
         if not opts.topic or len(opts.topic) > config.TOPIC_LIMIT:
             opts.error = resp(opts.st, code=error.TOPIC_LENGTH,
                 msg= 'Topic is less than 1 or '
-                    'over than %d bytes'
+                    'over than %d chars.' % config.TOPIC_LIMIT
             )
         elif noNumWords(opts.topic):
             opts.error = resp(opts.st, code=error.TOPIC_FORMAT,
-                msg='Topic only is a combination of  numbers and words.'
+                msg='Topic only is a combination of numbers and words.'
             )
         return func(body, opts, **args)
     return check
@@ -115,6 +115,11 @@ def checkKey(func):
             opts.error = resp(opts.st, code=error.KEY_EMPTY,
                 msg='Search value is empty!'
             )
+        elif len(opts.key) > config.SEARCH_LIMIT:
+            opts.error = resp(opts.st, code=error.KEYWORD_LENGTH,
+                msg= 'Keyword is over then %d chars.' % (
+                    config.SEARCH_LIMIT,
+            ))
         return func(body, opts, **args)
     return check
 
