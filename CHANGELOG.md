@@ -1,3 +1,5 @@
+v1.5.0 change config from baas1_a to search
+
 v1.4.2 modified the context limit and error code numbers.
 
 v1.4.1 refixed some bug of reversed sorting order in some steps.
