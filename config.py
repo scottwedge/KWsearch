@@ -24,5 +24,5 @@ DB_PSWD = '4Jf8VL39tS7bImO8'
 DB_NAME = 'dbops'
 
 #Search Setting
-DEFAULT_DB = 'baas1_a'
+DEFAULT_DB = 'search'
 
