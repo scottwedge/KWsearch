@@ -413,7 +413,7 @@ class MMseg:
         pop = lambda x: self.__dic.pop(x,None)
         map(pop,block)
 
-#unitest exapmple
+#unittest example
 if __name__ == '__main__':
     text = (
         'Hello World!哈囉你好!\n'
